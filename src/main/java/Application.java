@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.ForkJoinPool;
 
 public class Application {
 
@@ -75,7 +76,7 @@ public class Application {
 
 
         try {
-
+            Producte p = dadesProducte();
             //Demanem de guardar el producte p a la BD
             producteDAO.createProducte(p);
 
@@ -95,13 +96,17 @@ public class Application {
 
     private static Producte dadesProducte(){
         Scanner entrada = new Scanner(System.in);
-        System.out.println("Entra l'any d'inici de la reserva: ");
-        String codiProd = Integer.parseInt(entrada.nextLine());
-        System.out.println("Entra el mes d'inici de la reserva: ");
-        int mes = Integer.parseInt(entrada.nextLine());
-        System.out.println("Entra el dia d'inici de la reserva: ");
-        int dia = Integer.parseInt(entrada.nextLine());
-        return new Producte("pomaP", "Pink Lady", "Poma Pink Lady envasada",0.2f, 1.0f);
+        System.out.println("Introdueix el codi del nou producte: ");
+        String codiProd = entrada.nextLine();
+        System.out.println("Introdueix el nom del nou producte: ");
+        String nomProd = entrada.nextLine();
+        System.out.println("Introdueix la descripció del nou producte: ");
+        String descProd = entrada.nextLine();
+        System.out.println("Introdueix el preu de compra del nou producte(decimals separats per un .): ");
+        float preuCompra = Float.parseFloat(entrada.nextLine());
+        System.out.println("Introdueix el preu de venta del nou producte(decimals separats per un .): ");
+        float preuVenta = Float.parseFloat(entrada.nextLine());
+        return new Producte(codiProd, nomProd, descProd,preuCompra, preuVenta);
     }
 
     private static void mostrarInventari() {
