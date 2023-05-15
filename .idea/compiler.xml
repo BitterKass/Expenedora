@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Expenedora23" />
+        <module name="Expenedora" />
         <module name="mExpenedora23" />
       </profile>
     </annotationProcessing>
