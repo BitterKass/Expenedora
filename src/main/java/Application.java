@@ -2,6 +2,7 @@ import daos.ProducteDAO;
 import daos.ProducteDAO_MySQL;
 import model.Producte;
 
+import javax.sound.midi.Soundbank;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class Application {
     }
 
     private static void afegirProductes() {
-
+        Producte p = null;
         /**
          *      Crear un nou producte amb les dades que ens digui l'operari
          *      Agefir el producte a la BD (tenir en compte les diferents situacions que poden passar)
@@ -65,18 +66,16 @@ public class Application {
          *     Podeu fer-ho amb llenguatge SQL o mirant si el producte existeix i després inserir o actualitzar
          */
 
-        //Exemple de insersió SENSE ENTRADA DE DADES NI COMPROVACIÓ REPETITS
-
-
         try {
-            Producte p = dadesProducte();
+            p = dadesProducte();
 
             ArrayList<Producte> productes = producteDAO.readProductes();
 
             producteDAO.createProducte(p);
-        } catch (SQLException e) {          //TODO: tractar les excepcions
+        } catch (SQLException e) {
             System.out.println("Error: Codi de producte duplicat");
             System.out.println("Codi de l'error: " + e.getErrorCode());
+            producteRepetit(p);
         } catch (NumberFormatException e) {
             System.out.println("Error: Introdueix un valor numeric per el preu del producte.");
             System.out.println(e.getMessage());
@@ -85,6 +84,39 @@ public class Application {
             System.out.println(e.getMessage());
         }
     }
+
+    private static void producteRepetit(Producte p) {
+        Scanner entrada = new Scanner(System.in);
+        ArrayList<Producte> productes = null;
+        try {
+            productes = producteDAO.readProductes();
+
+            for (Producte prod : productes) {
+                if (prod.getCodiProducte().equals(p.getCodiProducte())) {
+                    System.out.println("Producte Original: " + prod.getDescripcio() + "\nProducte Nou " + p.getDescripcio());
+                    System.out.println("Vols reemplaçar el producte original per el nou (1) o canviar el codi del producte nou (2)? ");
+                    int opcio = Integer.parseInt(entrada.nextLine());
+                    if (opcio == 1) {
+                        prod.setNom(p.getNom());
+                        prod.setDescripcio(p.getDescripcio());
+                        prod.setPreuCompra(p.getPreuCompra());
+                        prod.setPreuVenta(p.getPreuVenta());
+                        producteDAO.updateProducte(prod, p);
+                    } else if (opcio == 2) {
+                        System.out.println("Entra el nou codi de producte: ");
+                        p.setCodiProducte(entrada.nextLine());
+                        producteDAO.createProducte(p);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (InputMismatchException e) {
+            System.out.println("Error: S'ha introduit un valor incorrecte.");
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     private static Producte dadesProducte() {
         Scanner entrada = new Scanner(System.in);

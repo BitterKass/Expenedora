@@ -15,7 +15,7 @@ public interface ProducteDAO {
 
     public ArrayList<Producte> readProductes() throws SQLException;
 
-    public void updateProducte(Producte p) throws SQLException;
+    public void updateProducte(Producte prod, Producte p) throws SQLException;
 
     public void deleteProducte(Producte p) throws SQLException;
 

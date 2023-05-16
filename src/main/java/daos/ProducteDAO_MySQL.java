@@ -78,8 +78,22 @@ public class ProducteDAO_MySQL implements ProducteDAO {
     }
 
     @Override
-    public void updateProducte(Producte p) throws SQLException {
+    public void updateProducte(Producte prod, Producte p) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM producte WHERE codi_producte = p.getCodiProducte");
 
+        ResultSet rs = ps.executeQuery();
+        while(rs.next())
+        {
+            prod.setCodiProducte(p.getCodiProducte());
+            prod.setNom(p.getNom());
+            prod.setDescripcio(p.getDescripcio());
+            prod.setPreuCompra(p.getPreuCompra());
+            prod.setPreuVenta(p.getPreuVenta());
+
+//            llistaProductes.add(p);
+        }
+
+        return ;
     }
 
     @Override
