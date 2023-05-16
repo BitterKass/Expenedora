@@ -71,8 +71,6 @@ public class Application {
         try {
             Producte p = dadesProducte();
 
-            // Demanem de guardar el producte p a la BD
-
             ArrayList<Producte> productes = producteDAO.readProductes();
 
             producteDAO.createProducte(p);
