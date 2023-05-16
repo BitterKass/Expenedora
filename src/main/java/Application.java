@@ -6,10 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 
 public class Application {
@@ -25,13 +22,11 @@ public class Application {
 
         int opcio = 0;
 
-        do
-        {
+        do {
             mostrarMenu();
             opcio = lector.nextInt();
 
-            switch (opcio)
-            {
+            switch (opcio) {
                 case 1 -> mostrarMaquina();
                 case 2 -> comprarProducte();
                 case 10 -> mostrarInventari();
@@ -41,8 +36,7 @@ public class Application {
                 case -1 -> System.out.println("Bye...");
                 default -> System.out.println("Opció no vàlida");
             }
-
-        }while(opcio != -1);
+        } while (opcio != -1);
 
     }
 
@@ -74,27 +68,27 @@ public class Application {
         //Exemple de insersió SENSE ENTRADA DE DADES NI COMPROVACIÓ REPETITS
 
 
-
         try {
             Producte p = dadesProducte();
-            //Demanem de guardar el producte p a la BD
-            producteDAO.createProducte(p);
 
-            //Agafem tots els productes de la BD i els mostrem (per compvoar que s'ha afegit)
+            // Demanem de guardar el producte p a la BD
+
             ArrayList<Producte> productes = producteDAO.readProductes();
-            for (Producte prod: productes)
-            {
-                System.out.println(prod);
-            }
 
+            producteDAO.createProducte(p);
         } catch (SQLException e) {          //TODO: tractar les excepcions
-            e.printStackTrace();
-            System.out.println(e.getErrorCode());
+            System.out.println("Error: Codi de producte duplicat");
+            System.out.println("Codi de l'error: " + e.getErrorCode());
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Introdueix un valor numeric per el preu del producte.");
+            System.out.println(e.getMessage());
+        } catch (InputMismatchException e) {
+            System.out.println("Error: S'ha introduit un valor incorrecte.");
+            System.out.println(e.getMessage());
         }
-
     }
 
-    private static Producte dadesProducte(){
+    private static Producte dadesProducte() {
         Scanner entrada = new Scanner(System.in);
         System.out.println("Introdueix el codi del nou producte: ");
         String codiProd = entrada.nextLine();
@@ -106,7 +100,7 @@ public class Application {
         float preuCompra = Float.parseFloat(entrada.nextLine());
         System.out.println("Introdueix el preu de venta del nou producte(decimals separats per un .): ");
         float preuVenta = Float.parseFloat(entrada.nextLine());
-        return new Producte(codiProd, nomProd, descProd,preuCompra, preuVenta);
+        return new Producte(codiProd, nomProd, descProd, preuCompra, preuVenta);
     }
 
     private static void mostrarInventari() {
@@ -114,8 +108,7 @@ public class Application {
         try {
             //Agafem tots els productes de la BD i els mostrem
             ArrayList<Producte> productes = producteDAO.readProductes();
-            for (Producte prod: productes)
-            {
+            for (Producte prod : productes) {
                 System.out.println(prod);
             }
 
