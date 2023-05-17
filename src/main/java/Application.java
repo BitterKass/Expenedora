@@ -1,6 +1,7 @@
 import daos.ProducteDAO;
 import daos.ProducteDAO_MySQL;
 import model.Producte;
+import model.Slot;
 
 import javax.sound.midi.Soundbank;
 import java.io.FileInputStream;
@@ -11,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 
 public class Application {
-
+    static final int PRIMARY_KEY_ALREADY_EXIST = 1062;
     //Passar al DAO -->     //TODO: llegir les propietats de la BD d'un fitxer de configuració (Properties)
     //En general -->        //TODO: Afegir un sistema de Logging per les classes.
 
@@ -53,7 +54,7 @@ public class Application {
     }
 
     private static void afegirProductes() {
-        Producte p = null;
+
         /**
          *      Crear un nou producte amb les dades que ens digui l'operari
          *      Agefir el producte a la BD (tenir en compte les diferents situacions que poden passar)
@@ -65,7 +66,7 @@ public class Application {
          *
          *     Podeu fer-ho amb llenguatge SQL o mirant si el producte existeix i després inserir o actualitzar
          */
-
+        Producte p = null;
         try {
             p = dadesProducte();
 
@@ -73,13 +74,19 @@ public class Application {
 
             producteDAO.createProducte(p);
         } catch (SQLException e) {
-            System.out.println("Error: Codi de producte duplicat");
-            System.out.println("Codi de l'error: " + e.getErrorCode());
-            producteRepetit(p);
+            e.printStackTrace();
+            if (e.getErrorCode() == PRIMARY_KEY_ALREADY_EXIST) {//Error code 1062 equival a camp clau repetit
+                System.out.println("Error: Codi de producte duplicat");
+                System.out.println("Codi de l'error: " + e.getErrorCode());
+                producteRepetit(p);
+            }
+
         } catch (NumberFormatException e) {
+            e.printStackTrace();
             System.out.println("Error: Introdueix un valor numeric per el preu del producte.");
             System.out.println(e.getMessage());
         } catch (InputMismatchException e) {
+            e.printStackTrace();
             System.out.println("Error: S'ha introduit un valor incorrecte.");
             System.out.println(e.getMessage());
         }
@@ -97,11 +104,8 @@ public class Application {
                     System.out.println("Vols reemplaçar el producte original per el nou (1) o canviar el codi del producte nou (2)? ");
                     int opcio = Integer.parseInt(entrada.nextLine());
                     if (opcio == 1) {
-                        prod.setNom(p.getNom());
-                        prod.setDescripcio(p.getDescripcio());
-                        prod.setPreuCompra(p.getPreuCompra());
-                        prod.setPreuVenta(p.getPreuVenta());
-                        producteDAO.updateProducte(prod, p);
+                        prod = new Producte(p);
+                        producteDAO.updateProducte(prod);
                     } else if (opcio == 2) {
                         System.out.println("Entra el nou codi de producte: ");
                         p.setCodiProducte(entrada.nextLine());
@@ -132,6 +136,15 @@ public class Application {
         float preuVenta = Float.parseFloat(entrada.nextLine());
         return new Producte(codiProd, nomProd, descProd, preuCompra, preuVenta);
     }
+    private static Slot dadesSlot() {
+        Scanner entrada = new Scanner(System.in);
+        System.out.println("Introdueix la quantitat del nou slot: ");
+        int quantitat = Integer.parseInt(entrada.nextLine());
+        System.out.println("Introdueix el codi del nou producte del nou slot: ");
+        String codiProd = entrada.nextLine();
+
+        return new Slot(quantitat, codiProd);
+    }
 
     private static void mostrarInventari() {
 
@@ -144,6 +157,10 @@ public class Application {
 
         } catch (SQLException e) {          //TODO: tractar les excepcions
             e.printStackTrace();
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -176,24 +193,21 @@ public class Application {
     }
 
     private static void mostrarMenu() {
-        System.out.println("\nMenú de la màquina expenedora");
-        System.out.println("=============================");
-        System.out.println("Selecciona la operació a realitzar introduïnt el número corresponent: \n");
-
-
-        //Opcions per client / usuari
-        System.out.println("[1] Mostrar Posició / Nom producte / Stock de la màquina");
-        System.out.println("[2] Comprar un producte");
-
-        //Opcions per administrador / manteniment
-        System.out.println();
-        System.out.println("[10] Mostrar llistat productes disponibles (BD)");
-        System.out.println("[11] Afegir productes disponibles");
-        System.out.println("[12] Assignar productes / stock a la màquina");
-        System.out.println("[13] Mostrar benefici");
-
-        System.out.println();
-        System.out.println("[-1] Sortir de l'aplicació");
+        System.out.println("""
+                Menú de la màquina expenedora
+                =============================
+                Selecciona la operació a realitzar introduïnt el número corresponent:
+                
+                [1] Mostrar Posició / Nom producte / Stock de la màquina
+                [2] Comprar un producte
+                
+                [10] Mostrar llistat productes disponibles (BD)
+                [11] Afegir productes disponibles
+                [12] Assignar productes / stock a la màquina
+                [13] Mostrar benefici
+                
+                [-1] Sortir de l'aplicació
+                """);
     }
 
     private static void mostrarBenefici() {

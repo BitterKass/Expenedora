@@ -13,12 +13,12 @@ public class Producte {
     private String descripcio;
     private float preuCompra;
     private float preuVenta;
-//fer constructor copia
-    public Producte(String codiProducte, String nom, String descripcio, float preuCompra, float preuVenta) {
-        this.codiProducte = codiProducte;
-        this.nom = nom;
-        this.descripcio = descripcio;
-        this.preuCompra = preuCompra;
-        this.preuVenta = preuVenta;
+
+    public Producte(Producte p){
+        this.codiProducte = p.codiProducte;
+        this.nom = p.nom;
+        this.descripcio = p.descripcio;
+        this.preuCompra = p.preuCompra;
+        this.preuVenta = p.preuVenta;
     }
 }

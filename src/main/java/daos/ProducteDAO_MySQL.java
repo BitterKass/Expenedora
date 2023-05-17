@@ -16,8 +16,7 @@ public class ProducteDAO_MySQL implements ProducteDAO {
 
     private Connection conn = null;
 
-    public ProducteDAO_MySQL()
-    {
+    public ProducteDAO_MySQL() {
         try {
             Class.forName(DB_DRIVER);
             conn = DriverManager.getConnection(DB_ROUTE, DB_USER, DB_PWD);
@@ -33,11 +32,11 @@ public class ProducteDAO_MySQL implements ProducteDAO {
 
         PreparedStatement ps = conn.prepareStatement("INSERT INTO producte VALUES(?,?,?,?,?)");
 
-        ps.setString(1,p.getCodiProducte());
-        ps.setString(2,p.getNom());
-        ps.setString(3,p.getDescripcio());
-        ps.setFloat(4,p.getPreuCompra());
-        ps.setFloat(5,p.getPreuVenta());
+        ps.setString(1, p.getCodiProducte());
+        ps.setString(2, p.getNom());
+        ps.setString(3, p.getDescripcio());
+        ps.setFloat(4, p.getPreuCompra());
+        ps.setFloat(5, p.getPreuVenta());
 
         int rowCount = ps.executeUpdate();
     }
@@ -53,17 +52,16 @@ public class ProducteDAO_MySQL implements ProducteDAO {
         PreparedStatement ps = conn.prepareStatement("SELECT * FROM producte");
 
         ResultSet rs = ps.executeQuery();
-        while(rs.next())
-        {
+        while (rs.next()) {
             Producte p = new Producte();
 
             /**
-            p.setCodiProducte(rs.getString(codi_producte));
-            p.setNom(rs.getString(nom));
-            p.setDescripcio(rs.getString(descripcio));
-            p.setPreuCompra(rs.getFloat(preu_compra));
-            p.setPreuVenta(rs.getFloat(preu_venta));
-            **/
+             p.setCodiProducte(rs.getString(codi_producte));
+             p.setNom(rs.getString(nom));
+             p.setDescripcio(rs.getString(descripcio));
+             p.setPreuCompra(rs.getFloat(preu_compra));
+             p.setPreuVenta(rs.getFloat(preu_venta));
+             **/
 
             p.setCodiProducte(rs.getString(1));
             p.setNom(rs.getString(2));
@@ -78,27 +76,24 @@ public class ProducteDAO_MySQL implements ProducteDAO {
     }
 
     @Override
-    public void updateProducte(Producte prod, Producte p) throws SQLException {
-        PreparedStatement ps = conn.prepareStatement("SELECT * FROM producte WHERE codi_producte = p.getCodiProducte");
+    public void updateProducte(Producte p) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("UPDATE producte SET codi_producte = ?, nom = ?, descripcio = ?, preu_compra = ?, preu_venta = ? WHERE codi_producte = ?");
+        ps.setString(1, p.getCodiProducte());
+        ps.setString(2, p.getNom());
+        ps.setString(3, p.getDescripcio());
+        ps.setFloat(4, p.getPreuCompra());
+        ps.setFloat(5, p.getPreuVenta());
+        ps.setString(6, p.getCodiProducte());
 
-        ResultSet rs = ps.executeQuery();
-        while(rs.next())
-        {
-            prod.setCodiProducte(p.getCodiProducte());
-            prod.setNom(p.getNom());
-            prod.setDescripcio(p.getDescripcio());
-            prod.setPreuCompra(p.getPreuCompra());
-            prod.setPreuVenta(p.getPreuVenta());
-
-//            llistaProductes.add(p);
-        }
-
-        return ;
+        ps.executeUpdate();
     }
+
 
     @Override
     public void deleteProducte(Producte p) throws SQLException {
-
+        PreparedStatement ps = conn.prepareStatement("DELETE FROM producte WHERE codi_producte = ?");
+        ps.setString(1, p.getCodiProducte());
+        ps.executeUpdate();
     }
 
     @Override
