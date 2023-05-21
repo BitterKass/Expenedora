@@ -12,6 +12,13 @@ public class Slot {
     private int quantitat;
     private String codi_producte;
 
+    public Slot(Slot s) {
+        this.posicio = s.getPosicio();
+        this.quantitat = s.getQuantitat();
+        this.codi_producte = s.getCodi_producte();
+    }
+
+
     public int getPosicio() {
         return posicio;
     }

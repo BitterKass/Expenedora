@@ -5,6 +5,7 @@ import model.Slot;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class SlotDAO_MySQL implements SlotDAO {
 
@@ -37,11 +38,63 @@ public class SlotDAO_MySQL implements SlotDAO {
 
         int rowCount = ps.executeUpdate();
     }
+    @Override
+    public Slot readSlot(int pos) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM slot where posicio = ?");
+        ps.setInt(1, pos);
+        Slot s = new Slot();
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            s.setPosicio(rs.getInt(1));
+            s.setQuantitat(rs.getInt(2));
+            s.setCodi_producte(rs.getString(3));
+        }
+        return s;
+    }
 
     @Override
-    public Slot readSlot() throws SQLException {
-        return null;
+    public Slot restarSlot(int pos) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM slot where posicio = ?");
+        ps.setInt(1, pos);
+        Slot s = new Slot();
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            s.setPosicio(rs.getInt(1));
+            s.setQuantitat(rs.getInt(2));
+            s.setCodi_producte(rs.getString(3));
+        }
+
+        ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ?, codi_producte = ? where posicio = ?");
+        ps.setInt(1, s.getPosicio());
+        ps.setInt(2,  s.getQuantitat()-1);
+        ps.setString(3, s.getCodi_producte());
+        ps.setInt(4, s.getPosicio());
+
+        ps.executeUpdate();
+
+        return s;
     }
+
+    @Override
+    public void modificarStock(int pos) throws SQLException {
+        Scanner entrada = new Scanner(System.in);
+
+        System.out.println("Introdueix el nou stock a introduir: ");
+        int nouStock = Integer.parseInt(entrada.nextLine());
+
+        if (nouStock < 0) {
+            System.out.println("El nou stock no pot ser un nombre negatiu.");
+
+        }else {
+            PreparedStatement ps = conn.prepareStatement("UPDATE slot SET quantitat = ? WHERE slot = ?");
+            ps.setInt(1, nouStock);
+            ps.setInt(2, pos);
+            ps.executeUpdate();
+        }
+    }
+
 
     @Override
     public Producte readProducte() throws SQLException {
@@ -57,16 +110,9 @@ public class SlotDAO_MySQL implements SlotDAO {
         while (rs.next()) {
             Slot s = new Slot();
 
-            /**
-             p.setCodiProducte(rs.getString(codi_producte));
-             p.setNom(rs.getString(nom));
-             p.setDescripcio(rs.getString(descripcio));
-             p.setPreuCompra(rs.getFloat(preu_compra));
-             p.setPreuVenta(rs.getFloat(preu_venta));
-             **/
-
-            s.setCodi_producte(rs.getString(1));
+            s.setPosicio(rs.getInt(1));
             s.setQuantitat(rs.getInt(2));
+            s.setCodi_producte(rs.getString(3));
 
             llistaSlots.add(s);
         }
@@ -84,6 +130,7 @@ public class SlotDAO_MySQL implements SlotDAO {
 
         ps.executeUpdate();
     }
+
 
 
     @Override

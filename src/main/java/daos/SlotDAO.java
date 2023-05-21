@@ -7,10 +7,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public interface SlotDAO {
+    public static boolean existeixSlotAmbPosicio(int posicio) {
+        return false;
+    }
 
     public void createSlot(Slot s) throws SQLException;
 
-    public Slot readSlot() throws SQLException;
+    Slot readSlot(int pos) throws SQLException;
+
+    Slot restarSlot(int s) throws SQLException;
+    void modificarStock(int pos) throws  SQLException;
 
     Producte readProducte() throws SQLException;
 

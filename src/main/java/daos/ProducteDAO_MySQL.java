@@ -29,17 +29,21 @@ public class ProducteDAO_MySQL implements ProducteDAO {
     }
 
     @Override
-    public void createProducte(Producte p) throws SQLException {
+    public void createProducte(Producte p) {
 
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO producte VALUES(?,?,?,?,?)");
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement("INSERT INTO producte VALUES(?,?,?,?,?)");
+            ps.setString(1, p.getCodiProducte());
+            ps.setString(2, p.getNom());
+            ps.setString(3, p.getDescripcio());
+            ps.setFloat(4, p.getPreuCompra());
+            ps.setFloat(5, p.getPreuVenta());
 
-        ps.setString(1, p.getCodiProducte());
-        ps.setString(2, p.getNom());
-        ps.setString(3, p.getDescripcio());
-        ps.setFloat(4, p.getPreuCompra());
-        ps.setFloat(5, p.getPreuVenta());
-
-        int rowCount = ps.executeUpdate();
+            int rowCount = ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

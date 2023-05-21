@@ -5,13 +5,11 @@ import daos.SlotDAO_MySQL;
 import model.Producte;
 import model.Slot;
 
-import javax.sound.midi.Soundbank;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.ForkJoinPool;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class Application {
     static final int PRIMARY_KEY_ALREADY_EXIST = 1062;
@@ -19,6 +17,7 @@ public class Application {
     //En general -->        //TODO: Afegir un sistema de Logging per les classes.
 
     private static ProducteDAO producteDAO = new ProducteDAO_MySQL();            //TODO: passar a una classe DAOFactory
+    private static SlotDAO slotDAO = new SlotDAO_MySQL();
 
     public static void main(String[] args) {
 
@@ -90,7 +89,7 @@ public class Application {
 
         try {
             // Verificar si la posición ya está repetida
-            if (slotDAO.existeixSlotAmbPosicio(posicio)) {
+            if (SlotDAO.existeixSlotAmbPosicio(posicio)) {
                 throw new IllegalArgumentException("La posicio ja esta ocupada per un altre slot.");
             }
 
@@ -116,18 +115,56 @@ public class Application {
         }
     }
 
-
     private static void modificarPosicionsProductes() {
-        // TODO: Implementar la lògica per modificar les posicions dels productes en la màquina
+        Scanner entrada = new Scanner(System.in);
+
+        System.out.println("Slots disponibles:");
+        mostrarMaquina();
+
+        System.out.println("Introdueix el número de slot que vols moure:");
+        int numeroSlot = entrada.nextInt();
+
+        // Comprovar si el slot existeix
+        Slot slot = null;
+        try {
+            slot = slotDAO.readSlot(numeroSlot);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (slot == null) {
+            System.out.println("El slot no existeix.");
+            return;
+        }
+
+        // Mostrar la posició actual del slot
+        System.out.println("Posició actual del slot: " + slot.getPosicio());
+
+
+        System.out.println("Introdueix la nova posició del slot:");
+        int novaPosicio = Integer.parseInt(entrada.nextLine());
+
+        // Actualitzar la posició del slot
+        slot.setPosicio(novaPosicio);
+        try {
+            slotDAO.updateSlot(slot);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("La posició del slot s'ha modificat correctament.");
     }
+
 
     private static void modificarStockProducte() {
         Scanner entrada = new Scanner(System.in);
 
         System.out.println("Introdueix la posició del producte que vols modificar: ");
-        int posicio = entrada.nextInt();
-        entrada.nextLine();
-
+        int posicio = Integer.parseInt(entrada.nextLine());
+        try {
+            slotDAO.modificarStock(posicio);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         // TODO: Implementar la lògica per modificar el stock del producte a la posició especificada
     }
 
@@ -234,7 +271,7 @@ public class Application {
     }
 
     private static void comprarProducte() {
-
+        Scanner entrada = new Scanner(System.in);
         /**
          * Mínim: es realitza la compra indicant la posició on es troba el producte que es vol comprar
          * Ampliació (0.5 punts): es permet entrar el NOM del producte per seleccionar-lo (abans cal mostrar els
@@ -243,7 +280,15 @@ public class Application {
          * Tingueu en compte que quan s'ha venut un producte HA DE QUEDAR REFLECTIT a la BD que n'hi ha un menys.
          * (stock de la màquina es manté guardat entre reinicis del programa)
          */
-
+        mostrarMaquina();
+        System.out.println("Entra la posicio del producte desitjat: ");
+        int posicio = Integer.parseInt(entrada.nextLine());
+        try {
+            slotDAO.restarSlot(posicio);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        mostrarMaquina();
     }
 
     private static void mostrarMaquina() {
@@ -262,16 +307,16 @@ public class Application {
 
         try {
             // Obtener la lista de slots de la máquina
-            List<Slot> slots = producteDAO. ();
+            List<Slot> slots = slotDAO.readSlots();
+
 
             // Imprimir la cabecera de la tabla
-            System.out.println("Posicio\tProducte\t\t\tQuantitat disponible");
+            System.out.println("Posicio\t\tProducte\t\tQuantitat disponible");
             System.out.println("===================================================");
 
             // Imprimir cada fila de la tabla con los datos de los slots
             for (Slot slot : slots) {
-                String producteNom = obtenerNombreProducte(slot.getCodiProducte());
-                System.out.printf("%-8d%-24s%d%n", slot.getPosicio(), producteNom, slot.getQuantitat());
+                System.out.println(slot.getPosicio() + "\t\t\t" + slot.getCodi_producte() + "\t\t\t" + slot.getQuantitat());
             }
         } catch (SQLException e) {
             e.printStackTrace();
