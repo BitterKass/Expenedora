@@ -1,5 +1,7 @@
 import daos.ProducteDAO;
 import daos.ProducteDAO_MySQL;
+import daos.SlotDAO;
+import daos.SlotDAO_MySQL;
 import model.Producte;
 import model.Slot;
 
@@ -51,6 +53,82 @@ public class Application {
          *      - modificar stock d'un producte que hi ha a la màquina
          *      - afegir més ranures a la màquina
          */
+        Scanner entrada = new Scanner(System.in);
+        int opcio = 0;
+        do {
+            mostrarMenuModificacioMaquina();
+            opcio = Integer.parseInt(entrada.nextLine());
+
+            switch (opcio) {
+                case 1 -> modificarPosicionsProductes();
+                case 2 -> modificarStockProducte();
+                case 3 -> afegirRanura();
+                case -1 -> System.out.println("Tornant al menú principal...");
+                default -> System.out.println("Opció no vàlida");
+            }
+        } while (opcio != -1);
+    }
+
+    private static void mostrarMenuModificacioMaquina() {
+        System.out.println("""
+                Menú de modificació de la màquina expenedora
+                ============================================
+                Selecciona l'operació a realitzar introduint el número corresponent:
+                            
+                [1] Modificar posicions dels productes
+                [2] Modificar el stock d'un producte
+                [3] Afegir ranures a la màquina
+                            
+                [-1] Tornar al menú principal
+                """);
+    }
+
+    private static Slot afegirRanura() {
+        Scanner entrada = new Scanner(System.in);
+        System.out.println("Introdueix la posicio del nou slot: ");
+        int posicio = Integer.parseInt(entrada.nextLine());
+
+        try {
+            // Verificar si la posición ya está repetida
+            if (slotDAO.existeixSlotAmbPosicio(posicio)) {
+                throw new IllegalArgumentException("La posicio ja esta ocupada per un altre slot.");
+            }
+
+            // Verificar si la posición es menor que 0
+            if (posicio < 0) {
+                throw new IllegalArgumentException("La posicio ha de ser un valor positiu.");
+            }
+
+            System.out.println("Introdueix la quantitat del nou slot: ");
+            int quantitat = Integer.parseInt(entrada.nextLine());
+            System.out.println("Introdueix el codi del nou producte del nou slot: ");
+            String codiProd = entrada.nextLine();
+
+            return new Slot(posicio, quantitat, codiProd);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: S'ha introduit un valor no vàlid.");
+            return null;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        } finally {
+            entrada.close();
+        }
+    }
+
+
+    private static void modificarPosicionsProductes() {
+        // TODO: Implementar la lògica per modificar les posicions dels productes en la màquina
+    }
+
+    private static void modificarStockProducte() {
+        Scanner entrada = new Scanner(System.in);
+
+        System.out.println("Introdueix la posició del producte que vols modificar: ");
+        int posicio = entrada.nextInt();
+        entrada.nextLine();
+
+        // TODO: Implementar la lògica per modificar el stock del producte a la posició especificada
     }
 
     private static void afegirProductes() {
@@ -136,15 +214,6 @@ public class Application {
         float preuVenta = Float.parseFloat(entrada.nextLine());
         return new Producte(codiProd, nomProd, descProd, preuCompra, preuVenta);
     }
-    private static Slot dadesSlot() {
-        Scanner entrada = new Scanner(System.in);
-        System.out.println("Introdueix la quantitat del nou slot: ");
-        int quantitat = Integer.parseInt(entrada.nextLine());
-        System.out.println("Introdueix el codi del nou producte del nou slot: ");
-        String codiProd = entrada.nextLine();
-
-        return new Slot(quantitat, codiProd);
-    }
 
     private static void mostrarInventari() {
 
@@ -190,6 +259,24 @@ public class Application {
          * 3            Coca-Cola Zero          10
          * 4            Aigua 0.5L              7
          */
+
+        try {
+            // Obtener la lista de slots de la máquina
+            List<Slot> slots = producteDAO. ();
+
+            // Imprimir la cabecera de la tabla
+            System.out.println("Posicio\tProducte\t\t\tQuantitat disponible");
+            System.out.println("===================================================");
+
+            // Imprimir cada fila de la tabla con los datos de los slots
+            for (Slot slot : slots) {
+                String producteNom = obtenerNombreProducte(slot.getCodiProducte());
+                System.out.printf("%-8d%-24s%d%n", slot.getPosicio(), producteNom, slot.getQuantitat());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
     private static void mostrarMenu() {
@@ -197,15 +284,15 @@ public class Application {
                 Menú de la màquina expenedora
                 =============================
                 Selecciona la operació a realitzar introduïnt el número corresponent:
-                
+                                
                 [1] Mostrar Posició / Nom producte / Stock de la màquina
                 [2] Comprar un producte
-                
+                                
                 [10] Mostrar llistat productes disponibles (BD)
                 [11] Afegir productes disponibles
                 [12] Assignar productes / stock a la màquina
                 [13] Mostrar benefici
-                
+                                
                 [-1] Sortir de l'aplicació
                 """);
     }

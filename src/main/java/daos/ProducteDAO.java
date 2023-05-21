@@ -1,6 +1,7 @@
 package daos;
 
 import model.Producte;
+import model.Slot;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,9 +12,13 @@ public interface ProducteDAO {
 
     public void createProducte(Producte p) throws SQLException;
 
+    void createSlot(Slot s) throws SQLException;
+
     public Producte readProducte() throws SQLException;
 
     public ArrayList<Producte> readProductes() throws SQLException;
+
+    ArrayList<Slot> readSlots() throws SQLException;
 
     public void updateProducte(Producte prod) throws SQLException;
 

@@ -1,6 +1,7 @@
 package daos;
 
 import model.Producte;
+import model.Slot;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -42,6 +43,11 @@ public class ProducteDAO_MySQL implements ProducteDAO {
     }
 
     @Override
+    public void createSlot(Slot s) throws SQLException {
+
+    }
+
+    @Override
     public Producte readProducte() throws SQLException {
         return null;
     }
@@ -73,6 +79,11 @@ public class ProducteDAO_MySQL implements ProducteDAO {
         }
 
         return llistaProductes;
+    }
+
+    @Override
+    public ArrayList<Slot> readSlots() throws SQLException {
+        return null;
     }
 
     @Override
